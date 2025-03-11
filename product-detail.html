@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .product-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .product-image {
+            flex: 1;
+        }
+        .product-image img {
+            max-width: 100%;
+            height: auto;
+        }
+        .product-details {
+            flex: 2;
+            padding-left: 20px;
+        }
+        .cart-section {
+            margin-top: 20px;
+        }
+        .cart-section input[type="number"] {
+            width: 50px;
+        }
+        .alert-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Product Details</h1>
+
+    <div class="product-container">
+        <div class="product-image">
+            <img id="productImage" alt="Product Image">
+        </div>
+        <div class="product-details">
+            <h2 id="productTitle"></h2>
+            <p><strong>Price: </strong>$<span id="productPrice"></span></p>
+            <p><strong>Rating: </strong><span id="productRating"></span> ⭐</p>
+            <p><strong>Rating Count: </strong><span id="productRatingCount"></span></p>
+
+            <div class="product-info">
+                <h3>Product Details:</h3>
+                <p><strong>Brand:</strong> <span id="productBrand"></span></p>
+                <p><strong>Weight:</strong> <span id="productWeight"></span></p>
+                <p><strong>Dimensions:</strong> <span id="productDimensions"></span></p>
+                <p><strong>Warranty Information:</strong> <span id="productWarranty"></span></p>
+                <p><strong>Shipping Information:</strong> <span id="productShipping"></span></p>
+                <p><strong>Availability:</strong> <span id="productAvailability"></span></p>
+                <p><strong>Return Policy:</strong> <span id="productReturnPolicy"></span></p>
+                <p><strong>Minimum Order Quantity:</strong> <span id="productMOQ"></span></p>
+            </div>
+
+            <div class="cart-section">
+                <label for="quantityInput"><strong>Quantity:</label></strong>
+                <input type="number" id="quantityInput" value="1" min="1">
+                <button id="addToCartBtn">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert-box alert-success" id="successAlert">
+        Product added to the cart successfully. <br>
+        Cart Total: <span id="cartTotal"></span> <br>
+        Discounted Total: <span id="discountedTotal"></span>
+    </div>
+
+    <div class="alert-box alert-error" id="errorAlert">
+        <span id="errorMessage"></span>
+    </div>
+
+    <script>
+        const productId = new URLSearchParams(window.location.search).get('id'); 
+        let minimumOrderQuantity = 1; 
+
+        function fetchProductDetails() {
+            fetch(`https://dummyjson.com/products/${productId}`)
+                .then(response => response.json())
+                .then(product => {
+                    
+                    document.getElementById('productImage').src = product.thumbnail;
+                    document.getElementById('productTitle').textContent = product.title;
+                    document.getElementById('productPrice').textContent = product.price;
+                    document.getElementById('productRating').textContent = product.rating;
+                    const reviewCount = product.reviews ? product.reviews.length : 0;
+                    document.getElementById('productRatingCount').textContent = `${reviewCount} reviews`;
+
+                    
+                    document.getElementById('productBrand').textContent = product.brand || "N/A";
+                    document.getElementById('productWeight').textContent = product.weight || "N/A";
+
+                    if (typeof product.dimensions === 'object' && product.dimensions !== null) {
+                        const dimensionsText = `${product.dimensions.width || 'N/A'} x ${product.dimensions.height || 'N/A'} x ${product.dimensions.depth || 'N/A'}`;
+                        document.getElementById('productDimensions').textContent = dimensionsText;
+                    } else {
+                        document.getElementById('productDimensions').textContent = product.dimensions || "N/A";
+                    }
+
+                    document.getElementById('productWarranty').textContent = product.warrantyInformation || "N/A";
+                    document.getElementById('productShipping').textContent = product.shippingInformation || "N/A";
+                    document.getElementById('productAvailability').textContent = product.stock > 0 ? "In Stock" : "Out of Stock";
+                    document.getElementById('productReturnPolicy').textContent = product.returnPolicy || "N/A";
+                    document.getElementById('productMOQ').textContent = product.minimumOrderQuantity || "N/A";
+
+                    minimumOrderQuantity = product.minimumOrderQuantity || 1;
+                })
+
+            .catch(error => console.error('Error fetching product details:', error));
+        }
+
+        
+        function addToCart() {
+            const quantity = parseInt(document.getElementById('quantityInput').value);
+
+            if (quantity < minimumOrderQuantity) {
+                document.getElementById('errorAlert').style.display = 'block';
+                document.getElementById('errorMessage').textContent = `Minimum order quantity is ${minimumOrderQuantity}. Please adjust the quantity.`;
+                return;
+            }
+
+            fetch('https://dummyjson.com/carts/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: 1, 
+                    products: [{ id: productId, quantity }]
+                })
+            })
+            .then(response => response.json())
+            .then(cart => {
+                document.getElementById('errorAlert').style.display = 'none'; 
+                document.getElementById('successAlert').style.display = 'block';
+                document.getElementById('cartTotal').textContent = cart.total;
+                document.getElementById('discountedTotal').textContent = cart.discountedTotal;
+            })
+            .catch(error => {
+                document.getElementById('successAlert').style.display = 'none'; 
+                document.getElementById('errorAlert').style.display = 'block';
+                document.getElementById('errorMessage').textContent = error.message || 'Unknown error';
+            });
+        }
+
+        document.getElementById('addToCartBtn').addEventListener('click', addToCart);
+
+        window.onload = fetchProductDetails;
+
+    </script>
+
+</body>
+</html>

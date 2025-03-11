@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #filters {
+            margin-bottom: 20px;
+        }
+        select, input[type="text"], button {
+            padding: 10px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        #productsContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .product {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        .product img {
+            max-width: 100%;
+            height: auto;
+        }
+        .product h3 {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .product p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Products</h1>
+
+    
+    <div id="filters">
+        <select id="categoryFilter">
+            <option value="">All Categories</option>
+        </select>
+
+        <input type="text" id="searchBox" placeholder="Search products...">
+
+        <select id="sortByPrice">
+            <option value="none">Default Sorting</option>
+            <option value="low-high">Low to High</option>
+            <option value="high-low">High to Low</option>
+        </select>
+
+        <button id="getProductsBtn">Get Products</button>
+    </div>
+
+    
+    <div id="productsContainer"></div>
+
+    <script>
+
+        function fetchCategories() {
+            fetch('https://dummyjson.com/products/category-list')
+                .then(response => response.json())
+                .then(categories => {
+                    const categoryDropdown = document.getElementById('categoryFilter');
+                    categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category;
+                        option.text = category.charAt(0).toUpperCase() + category.slice(1);
+                        categoryDropdown.appendChild(option);
+                    });
+                })
+
+            .catch(error => console.error('Error fetching categories:', error));
+        }
+
+        async function fetchProducts(category = '', sort = 'none', search = '') {
+            let url = 'https://dummyjson.com/products';
+
+            if (category) {
+                url = `https://dummyjson.com/products/category/${category}`;
+            }
+
+            if (search) {
+               url = `https://dummyjson.com/products/search?q=${search}`;
+            }
+
+            if (sort !== 'none') {
+               const order = sort === 'low-high' ? 'asc' : 'desc';
+               url += url.includes('?') ? `&sortBy=price&order=${order}` : `?sortBy=price&order=${order}`;
+            }
+
+            try {
+              const response = await fetch(url);
+              const data = await response.json();
+              displayProducts(data.products || []);
+            } 
+            
+            catch (error) {
+              console.error('Error fetching products:', error);
+            }
+        }
+
+        function displayProducts(products) {
+            const productsContainer = document.getElementById('productsContainer');
+            productsContainer.innerHTML = '';
+
+            if (products.length === 0) {
+                productsContainer.innerHTML = '<p>No products found.</p>';
+                return;
+            }
+
+            products.forEach(product => {
+                const productBox = document.createElement('div');
+                productBox.className = 'product';
+                productBox.innerHTML = `
+                    <a href="product-detail.html?id=${product.id}">
+                        <img src="${product.thumbnail}" alt="${product.title}">
+                        <h3>${product.title}</h3>
+                    </a>
+                    <p>${product.description}</p>
+                    <p><b>Price: </b>$${product.price}</p>
+                    <p><b>Rating: </b>${product.rating} ⭐ (${product.reviews ? product.reviews.length : 'No'} reviews)</p>
+                `;
+                productsContainer.appendChild(productBox);
+            });
+        }
+
+       
+        document.getElementById('getProductsBtn').addEventListener('click', () => {
+            const category = document.getElementById('categoryFilter').value;
+            const sort = document.getElementById('sortByPrice').value;
+            const search = document.getElementById('searchBox').value;
+            fetchProducts(category, sort, search);
+        });
+
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCategories();
+            fetchProducts();
+        });
+
+
+    </script>
+</body>
+
+</html>
