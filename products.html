@@ -42,6 +42,21 @@
         .product p {
             margin: 5px 0;
         }
+        @media (min-width: 1200px) {
+            #productsContainer { grid-template-columns: repeat(5, 1fr); }
+        }
+        @media (max-width: 1199px) {
+            #productsContainer { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (max-width: 992px) {
+            #productsContainer { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            #productsContainer { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            #productsContainer { grid-template-columns: repeat(1, 1fr); }
+        }
     </style>
 </head>
 
@@ -146,6 +161,10 @@
             fetchProducts(category, sort, search);
         });
 
+        document.getElementById('categoryFilter').addEventListener('change', () => {
+            document.getElementById('searchBox').value = '';
+            document.getElementById('sortByPrice').value = 'none';
+        });
         
         document.addEventListener('DOMContentLoaded', () => {
             fetchCategories();
