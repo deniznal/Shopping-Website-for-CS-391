@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -59,11 +58,9 @@
         }
     </style>
 </head>
-
 <body>
     <h1>Products</h1>
 
-    
     <div id="filters">
         <select id="categoryFilter">
             <option value="">All Categories</option>
@@ -80,52 +77,43 @@
         <button id="getProductsBtn">Get Products</button>
     </div>
 
-    
     <div id="productsContainer"></div>
 
+    <script src="products.js"></script>
+
     <script>
-
         function fetchCategories() {
-            fetch('https://dummyjson.com/products/category-list')
-                .then(response => response.json())
-                .then(categories => {
-                    const categoryDropdown = document.getElementById('categoryFilter');
-                    categories.forEach(category => {
-                        const option = document.createElement('option');
-                        option.value = category;
-                        option.text = category.charAt(0).toUpperCase() + category.slice(1);
-                        categoryDropdown.appendChild(option);
-                    });
-                })
-
-            .catch(error => console.error('Error fetching categories:', error));
+            const categories = [...new Set(products.map(product => product.category))];
+            const categoryDropdown = document.getElementById('categoryFilter');
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.text = category.charAt(0).toUpperCase() + category.slice(1);
+                categoryDropdown.appendChild(option);
+            });
         }
 
-        async function fetchProducts(category = '', sort = 'none', search = '') {
-            let url = 'https://dummyjson.com/products';
+        function fetchProducts(category = '', sort = 'none', search = '') {
+            let filtered = [...products];
 
             if (category) {
-                url = `https://dummyjson.com/products/category/${category}`;
+                filtered = filtered.filter(product => product.category === category);
             }
 
             if (search) {
-               url = `https://dummyjson.com/products/search?q=${search}`;
+                filtered = filtered.filter(product => 
+                    product.title.toLowerCase().includes(search.toLowerCase()) || 
+                    product.description.toLowerCase().includes(search.toLowerCase())
+                );
             }
 
-            if (sort !== 'none') {
-               const order = sort === 'low-high' ? 'asc' : 'desc';
-               url += url.includes('?') ? `&sortBy=price&order=${order}` : `?sortBy=price&order=${order}`;
+            if (sort === 'low-high') {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (sort === 'high-low') {
+                filtered.sort((a, b) => b.price - a.price);
             }
 
-            try {
-              const response = await fetch(url);
-              const data = await response.json();
-              displayProducts(data.products || []);
-            } 
-            
-            catch (error) {
-              console.error('Error fetching products:', error);
-            }
+            displayProducts(filtered);
         }
 
         function displayProducts(products) {
@@ -147,13 +135,12 @@
                     </a>
                     <p>${product.description}</p>
                     <p><b>Price: </b>$${product.price}</p>
-                    <p><b>Rating: </b>${product.rating} ⭐ (${product.reviews ? product.reviews.length : 'No'} reviews)</p>
+    
                 `;
                 productsContainer.appendChild(productBox);
             });
         }
 
-       
         document.getElementById('getProductsBtn').addEventListener('click', () => {
             const category = document.getElementById('categoryFilter').value;
             const sort = document.getElementById('sortByPrice').value;
@@ -170,9 +157,6 @@
             fetchCategories();
             fetchProducts();
         });
-
-
     </script>
 </body>
-
 </html>
