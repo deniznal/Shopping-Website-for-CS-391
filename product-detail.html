@@ -43,11 +43,22 @@
             background-color: #f8d7da;
             color: #721c24;
         }
+        .total-container {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        .cart-buttons {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
 
     <h1>Product Details</h1>
+
+    <div class="total-container">
+        <strong>Total: $<span id="totalPrice">0.00</span></strong>
+    </div>
 
     <div class="product-container">
         <div class="product-image">
@@ -55,34 +66,20 @@
         </div>
         <div class="product-details">
             <h2 id="productTitle"></h2>
+            <p id="productDescription"></p>
             <p><strong>Price: </strong>$<span id="productPrice"></span></p>
-            <p><strong>Rating: </strong><span id="productRating"></span> ⭐</p>
-            <p><strong>Rating Count: </strong><span id="productRatingCount"></span></p>
-
-            <div class="product-info">
-                <h3>Product Details:</h3>
-                <p><strong>Brand:</strong> <span id="productBrand"></span></p>
-                <p><strong>Weight:</strong> <span id="productWeight"></span></p>
-                <p><strong>Dimensions:</strong> <span id="productDimensions"></span></p>
-                <p><strong>Warranty Information:</strong> <span id="productWarranty"></span></p>
-                <p><strong>Shipping Information:</strong> <span id="productShipping"></span></p>
-                <p><strong>Availability:</strong> <span id="productAvailability"></span></p>
-                <p><strong>Return Policy:</strong> <span id="productReturnPolicy"></span></p>
-                <p><strong>Minimum Order Quantity:</strong> <span id="productMOQ"></span></p>
-            </div>
 
             <div class="cart-section">
-                <label for="quantityInput"><strong>Quantity:</label></strong>
+                <label for="quantityInput"><strong>Quantity:</strong></label>
                 <input type="number" id="quantityInput" value="1" min="1">
                 <button id="addToCartBtn">Add to Cart</button>
+                <button id="goToCartBtn">Go to Cart</button>
             </div>
         </div>
     </div>
 
     <div class="alert-box alert-success" id="successAlert">
-        Product added to the cart successfully. <br>
-        Cart Total: <span id="cartTotal"></span> <br>
-        Discounted Total: <span id="discountedTotal"></span>
+        Product added to the cart successfully.
     </div>
 
     <div class="alert-box alert-error" id="errorAlert">
@@ -90,14 +87,15 @@
     </div>
 
     <script src="products.js"></script>
-    
+
     <script>
-        const productId = new URLSearchParams(window.location.search).get('id'); 
-        let minimumOrderQuantity = 1; 
+        const productId = new URLSearchParams(window.location.search).get('id');
+        let minimumOrderQuantity = 1;
+        let productPrice = 0;
 
         function fetchProductDetails() {
             const product = products.find(p => p.id == productId);
-            
+
             if (!product) {
                 console.error('Product not found');
                 return;
@@ -105,50 +103,47 @@
 
             document.getElementById('productImage').src = product.thumbnail;
             document.getElementById('productTitle').textContent = product.title;
-            document.getElementById('productPrice').textContent = product.price;
-            document.getElementById('productRating').textContent = product.rating || 'N/A';
-            document.getElementById('productRatingCount').textContent = product.reviews ? `${product.reviews.length} reviews` : 'No reviews';
+            document.getElementById('productDescription').textContent = product.description;
+            document.getElementById('productPrice').textContent = product.price.toFixed(2);
 
-            document.getElementById('productBrand').textContent = product.brand || "N/A";
-            document.getElementById('productWeight').textContent = product.weight || "N/A";
+            productPrice = product.price;
+            updateTotal();
+        }
 
-            if (product.dimensions && typeof product.dimensions === 'object') {
-                const dimensionsText = `${product.dimensions.width || 'N/A'} x ${product.dimensions.height || 'N/A'} x ${product.dimensions.depth || 'N/A'}`;
-                document.getElementById('productDimensions').textContent = dimensionsText;
-            } else {
-                document.getElementById('productDimensions').textContent = product.dimensions || "N/A";
-            }
-
-            document.getElementById('productWarranty').textContent = product.warrantyInformation || "N/A";
-            document.getElementById('productShipping').textContent = product.shippingInformation || "N/A";
-            document.getElementById('productAvailability').textContent = product.stock > 0 ? "In Stock" : "Out of Stock";
-            document.getElementById('productReturnPolicy').textContent = product.returnPolicy || "N/A";
-            document.getElementById('productMOQ').textContent = product.minimumOrderQuantity || "N/A";
-
-            minimumOrderQuantity = product.minimumOrderQuantity || 1;
+        function updateTotal() {
+            const quantity = parseInt(document.getElementById('quantityInput').value);
+            document.getElementById('totalPrice').textContent = (productPrice * quantity).toFixed(2);
         }
 
         function addToCart() {
             const quantity = parseInt(document.getElementById('quantityInput').value);
 
-            if (quantity < minimumOrderQuantity) {
+            if (quantity < 1) {
                 document.getElementById('errorAlert').style.display = 'block';
-                document.getElementById('errorMessage').textContent = `Minimum order quantity is ${minimumOrderQuantity}. Please adjust the quantity.`;
+                document.getElementById('errorMessage').textContent = "Please select a valid quantity.";
                 return;
             }
 
-            document.getElementById('errorAlert').style.display = 'none'; 
+            document.getElementById('errorAlert').style.display = 'none';
             document.getElementById('successAlert').style.display = 'block';
-            
-            const product = products.find(p => p.id == productId);
-            const total = product.price * quantity;
-            const discountedTotal = total * 0.9; 
 
-            document.getElementById('cartTotal').textContent = total.toFixed(2);
-            document.getElementById('discountedTotal').textContent = discountedTotal.toFixed(2);
+            let shoppingCart = JSON.parse(localStorage.getItem("shoppingCart")) || [];
+            const existingProduct = shoppingCart.find(p => p.productId == productId);
+
+            if (existingProduct) {
+                existingProduct.quantity += quantity;
+            } else {
+                shoppingCart.push({ productId, quantity });
+            }
+
+            localStorage.setItem("shoppingCart", JSON.stringify(shoppingCart));
         }
 
+        document.getElementById('quantityInput').addEventListener('input', updateTotal);
         document.getElementById('addToCartBtn').addEventListener('click', addToCart);
+        document.getElementById('goToCartBtn').addEventListener('click', () => {
+            window.location.href = 'shopping-cart.html';
+        });
 
         window.onload = fetchProductDetails;
     </script>
