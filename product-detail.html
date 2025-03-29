@@ -8,13 +8,10 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
         }
         .cart-total {
             background-color: #f8f9fa;
             padding: 15px;
-            margin-bottom: 20px;
             border-radius: 5px;
             font-size: 18px;
             font-weight: bold;
@@ -26,17 +23,17 @@
         }
         .product-image {
             flex: 1;
-            min-width: 300px;
+            text-align: center;
         }
         .product-image img {
-            max-width: 100%;
-            height: auto;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
         }
         .product-details {
             flex: 2;
-            min-width: 300px;
+            padding-left: 20px;
         }
         .product-title {
             font-size: 28px;
@@ -56,15 +53,15 @@
         }
         .quantity-control {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
-            margin: 20px 0;
         }
         .quantity-control label {
             margin-right: 10px;
             font-weight: bold;
         }
         .quantity-control input {
-            width: 60px;
+            width: 50px;
             padding: 8px;
             text-align: center;
             border: 1px solid #ddd;
@@ -73,14 +70,16 @@
         .action-buttons {
             display: flex;
             gap: 10px;
-            margin-top: 20px;
+            width: 100%;
+            margin-top: 10px;
         }
         .btn {
             padding: 10px 20px;
             border: none;
             border-radius: 4px;
+            width:100%;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             transition: background-color 0.3s;
         }
         .btn-primary {
@@ -102,32 +101,49 @@
             margin-top: 5px;
             display: none;
         }
+        .quantities-container {
+            flex-wrap: wrap;
+        }
+        .price-changing{
+            font-weight: bold;
+            color: #e53935;
+        }
+        .container {
+            display:grid;
+            grid-template-columns: 2fr 3fr 1fr;
+            flex-wrap: wrap;
+            width: 90%;
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="cart-total" id="cartTotal">
         Total: $0.00
     </div>
-
-    <div class="product-container">
+    <div class="container">
         <div class="product-image">
             <img id="productImage" alt="Product Image">
         </div>
-        <div class="product-details">
-            <h1 class="product-title" id="productTitle"></h1>
-            <div class="product-price">$<span id="productPrice"></span></div>
-            <p class="product-description" id="productDescription"></p>
-            
+        <div class="product-container">
+            <div class="product-details">
+                <h1 class="product-title" id="productTitle"></h1>
+                <div class="product-price">$<span id="productPrice"></span></div>
+                <p class="product-description" id="productDescription"></p>
+                </div>
+        </div>
+        <div class ="quantities-container">
+            <p class="product-description" id="quantityPrice">Total Price: 0$</p>
             <div class="quantity-control">
                 <label for="quantityInput">Quantity:</label>
-                <input type="number" id="quantityInput" value="1" min="1">
+                <input type="number" id="quantityInput" value="0" min="1">
                 <span class="error-message" id="quantityError">Please enter a valid quantity</span>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="addToCartBtn">Add to Cart</button>
+                    <button class="btn btn-secondary" id="goToCartBtn">Go to Cart</button>
+                </div>
             </div>
-            
-            <div class="action-buttons">
-                <button class="btn btn-primary" id="addToCartBtn">Add to Cart</button>
-                <button class="btn btn-secondary" id="goToCartBtn">Go to Cart</button>
-            </div>
+    
         </div>
     </div>
 
@@ -182,6 +198,7 @@
             document.getElementById('quantityInput').addEventListener('input', (e) => {
                 const quantity = parseInt(e.target.value);
                 const errorMessage = document.getElementById('quantityError');
+                document.getElementById('quantityPrice').textContent = "Total Price: "+ (quantity*product.price).toFixed(2) + "$";
                 
                 if (quantity < 1) {
                     errorMessage.style.display = 'block';
