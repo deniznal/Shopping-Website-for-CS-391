@@ -94,20 +94,19 @@
             font-size: 18px;
         }
 
-        /* Responsive grid */
-        @media (min-width: 1400px) {
+        @media (min-width: 1200px) {
             #productsContainer { grid-template-columns: repeat(5, 1fr); }
         }
-        @media (min-width: 1200px) and (max-width: 1399px) {
+        @media (min-width: 992px) and (max-width: 1199px) {
             #productsContainer { grid-template-columns: repeat(4, 1fr); }
         }
-        @media (min-width: 992px) and (max-width: 1199px) {
+        @media (min-width: 768px) and (max-width: 991px) {
             #productsContainer { grid-template-columns: repeat(3, 1fr); }
         }
-        @media (min-width: 768px) and (max-width: 991px) {
+        @media (min-width: 576px) and (max-width: 767px) {
             #productsContainer { grid-template-columns: repeat(2, 1fr); }
         }
-        @media (max-width: 767px) {
+        @media (max-width: 575px) {
             #productsContainer { grid-template-columns: 1fr; }
             #filters {
                 flex-direction: column;
@@ -167,7 +166,6 @@
                     <img src="${product.thumbnail}" alt="${product.title}">
                     <h3>${product.title}</h3>
                     <p class="price">$${product.price.toFixed(2)}</p>
-                    <p class="category">${product.category}</p>
                 </a>
             `;
             productsContainer.appendChild(productBox);
