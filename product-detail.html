@@ -85,11 +85,11 @@
             transition: background-color 0.3s;
         }
         .btn-primary {
-            background-color: #4CAF50;
+            background-color: violet;
             color: white;
         }
         .btn-primary:hover {
-            background-color: #45a049;
+            background-color: purple;
         }
         .btn-secondary {
             background-color: #6c757d;
@@ -133,17 +133,12 @@
     </div>
 
     <script>
-        // Get product ID from URL
         const params = new URLSearchParams(window.location.search);
         const productId = parseInt(params.get('id'));
-        
-        // Find the product in our products array
         const product = products.find(p => p.id === productId);
         
-        // Initialize shopping cart
         let shoppingCart = JSON.parse(localStorage.getItem('shoppingCart')) || {};
         
-        // Update cart total display
         function updateCartTotal() {
             let total = 0;
             for (const [id, quantity] of Object.entries(shoppingCart)) {
@@ -155,18 +150,14 @@
             document.getElementById('cartTotal').textContent = `Total: $${total.toFixed(2)}`;
         }
         
-        // Initialize the page
         if (product) {
-            // Display product details
             document.getElementById('productImage').src = product.thumbnail;
             document.getElementById('productTitle').textContent = product.title;
             document.getElementById('productPrice').textContent = product.price.toFixed(2);
             document.getElementById('productDescription').textContent = product.description;
             
-            // Set initial cart total
             updateCartTotal();
             
-            // Add to cart functionality
             document.getElementById('addToCartBtn').addEventListener('click', () => {
                 const quantityInput = document.getElementById('quantityInput');
                 const quantity = parseInt(quantityInput.value);
@@ -181,18 +172,14 @@
                 
                 errorMessage.style.display = 'none';
                 
-                // Update shopping cart
                 shoppingCart[productId] = (shoppingCart[productId] || 0) + quantity;
                 localStorage.setItem('shoppingCart', JSON.stringify(shoppingCart));
                 
-                // Update cart total
                 updateCartTotal();
                 
-                // Show success message
                 alert(`${quantity} ${product.title} added to cart!`);
             });
             
-            // Quantity input validation
             document.getElementById('quantityInput').addEventListener('input', (e) => {
                 const quantity = parseInt(e.target.value);
                 const errorMessage = document.getElementById('quantityError');
@@ -203,13 +190,11 @@
                     errorMessage.style.display = 'none';
                 }
             });
-            
-            // Go to cart button
+
             document.getElementById('goToCartBtn').addEventListener('click', () => {
                 window.location.href = 'shopping-cart.html';
             });
         } else {
-            // Product not found
             document.querySelector('.product-container').innerHTML = `
                 <div style="width: 100%; text-align: center; padding: 50px;">
                     <h2>Product not found</h2>

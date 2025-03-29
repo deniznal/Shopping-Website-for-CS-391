@@ -93,11 +93,11 @@
             background-color: #c62828;
         }
         .btn-primary {
-            background-color: #4CAF50;
+            background-color: orange;
             color: white;
         }
         .btn-primary:hover {
-            background-color: #388E3C;
+            background-color: orangered;
         }
         .btn-secondary {
             background-color: #6c757d;
@@ -178,7 +178,6 @@
 
     <script src="products.js"></script>
     <script>
-        // Load cart from localStorage
         function loadCart() {
             let cart = JSON.parse(localStorage.getItem('shoppingCart')) || {};
             const cartContainer = document.getElementById('cartContainer');
@@ -188,7 +187,6 @@
             cartContainer.innerHTML = '';
             let total = 0;
 
-            // Check if cart is empty
             if (Object.keys(cart).length === 0) {
                 emptyCartMessage.style.display = 'block';
                 totalSection.style.display = 'none';
@@ -198,7 +196,6 @@
             emptyCartMessage.style.display = 'none';
             totalSection.style.display = 'block';
 
-            // Display each cart item
             for (const [productId, quantity] of Object.entries(cart)) {
                 const product = products.find(p => p.id === parseInt(productId));
                 if (product) {
@@ -231,11 +228,9 @@
                 }
             }
 
-            // Update total amount
             document.getElementById('totalAmount').textContent = total.toFixed(2);
         }
 
-        // Update item quantity
         function updateQuantity(productId, newQuantity) {
             newQuantity = parseInt(newQuantity);
             
@@ -251,7 +246,6 @@
             loadCart();
         }
 
-        // Remove item from cart
         function removeItem(productId) {
             let cart = JSON.parse(localStorage.getItem('shoppingCart')) || {};
             delete cart[productId];
@@ -259,7 +253,6 @@
             loadCart();
         }
 
-        // Clear entire cart
         document.getElementById('clearCartBtn').addEventListener('click', () => {
             if (confirm('Are you sure you want to clear your cart?')) {
                 localStorage.removeItem('shoppingCart');
@@ -267,7 +260,6 @@
             }
         });
 
-        // Proceed to checkout
         document.getElementById('checkoutBtn').addEventListener('click', () => {
             const cart = JSON.parse(localStorage.getItem('shoppingCart')) || {};
             if (Object.keys(cart).length === 0) {
@@ -276,14 +268,12 @@
             }
             
             if (confirm('Proceed to checkout?')) {
-                // Here you would typically redirect to a checkout page
                 alert('Thank you for your purchase!');
                 localStorage.removeItem('shoppingCart');
                 loadCart();
             }
         });
 
-        // Load cart when page loads
         document.addEventListener('DOMContentLoaded', loadCart);
     </script>
 </body>
