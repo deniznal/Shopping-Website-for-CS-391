@@ -4,148 +4,222 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Detail</title>
+    <script src="products.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
         }
+        .cart-total {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: right;
+        }
+        .quantities-container {
+            flex-wrap: wrap;
+            margin-left: 20px;
+        }
+        .container {
+            display:grid;
+            grid-template-columns: 2fr 3fr 1fr;
+            flex-wrap: wrap;
+            width: 90%;
+            padding: 20px;
+        }
         .product-container {
             display: flex;
-            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         .product-image {
             flex: 1;
+            text-align: center;
         }
         .product-image img {
-            max-width: 100%;
-            height: auto;
+            border: 1px solid #ddd;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
         }
         .product-details {
             flex: 2;
             padding-left: 20px;
         }
-        .cart-section {
-            margin-top: 20px;
+        .product-title {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #333;
         }
-        .cart-section input[type="number"] {
+        .product-price {
+            font-size: 24px;
+            color: #e53935;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .price-changing{
+            font-weight: bold;
+            color: #e53935;
+        }
+        .product-description {
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .quantity-control {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .quantity-control label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .quantity-control input {
             width: 50px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        .alert-box {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 5px;
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            width:100%;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: violet;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: purple;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .error-message {
+            color: #dc3545;
+            margin-top: 5px;
             display: none;
-        }
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .total-container {
-            font-size: 1.2em;
-            margin-bottom: 15px;
-        }
-        .cart-buttons {
-            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-
-    <h1>Product Details</h1>
-
-    <div class="total-container">
-        <strong>Total: $<span id="totalPrice">0.00</span></strong>
+    <div class="cart-total" id="cartTotal">
+        Total: $0.00
     </div>
-
-    <div class="product-container">
+    <div class="container">
         <div class="product-image">
             <img id="productImage" alt="Product Image">
         </div>
-        <div class="product-details">
-            <h2 id="productTitle"></h2>
-            <p id="productDescription"></p>
-            <p><strong>Price: </strong>$<span id="productPrice"></span></p>
-
-            <div class="cart-section">
-                <label for="quantityInput"><strong>Quantity:</strong></label>
-                <input type="number" id="quantityInput" value="1" min="1">
-                <button id="addToCartBtn">Add to Cart</button>
-                <button id="goToCartBtn">Go to Cart</button>
+        <div class="product-container">
+            <div class="product-details">
+                <h1 class="product-title" id="productTitle"></h1>
+                <div class="product-price">$<span id="productPrice"></span></div>
+                <p class="product-description" id="productDescription"></p>
+                </div>
+        </div>
+        <div class ="quantities-container">
+            <p class="product-description" id="quantityPrice">Total Price: $0</p>
+            <div class="quantity-control">
+                <label for="quantityInput">Quantity:</label>
+                <input type="number" id="quantityInput" value="0" min="1">
+                <span class="error-message" id="quantityError">Please enter a valid quantity</span>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="addToCartBtn">Add to Cart</button>
+                    <button class="btn btn-secondary" id="goToCartBtn">Go to Cart</button>
+                </div>
             </div>
+    
         </div>
     </div>
 
-    <div class="alert-box alert-success" id="successAlert">
-        Product added to the cart successfully.
-    </div>
-
-    <div class="alert-box alert-error" id="errorAlert">
-        <span id="errorMessage"></span>
-    </div>
-
-    <script src="products.js"></script>
-
     <script>
-        const productId = new URLSearchParams(window.location.search).get('id');
-        let minimumOrderQuantity = 1;
-        let productPrice = 0;
-
-        function fetchProductDetails() {
-            const product = products.find(p => p.id == productId);
-
-            if (!product) {
-                console.error('Product not found');
-                return;
+        const params = new URLSearchParams(window.location.search);
+        const productId = parseInt(params.get('id'));
+        const product = products.find(p => p.id === productId);
+        
+        let shoppingCart = JSON.parse(localStorage.getItem('shoppingCart')) || {};
+        
+        function updateCartTotal() {
+            let total = 0;
+            for (const [id, quantity] of Object.entries(shoppingCart)) {
+                const product = products.find(p => p.id === parseInt(id));
+                if (product) {
+                    total += product.price * quantity;
+                }
             }
-
+            document.getElementById('cartTotal').textContent = `Total: $${total.toFixed(2)}`;
+        }
+        
+        if (product) {
             document.getElementById('productImage').src = product.thumbnail;
             document.getElementById('productTitle').textContent = product.title;
-            document.getElementById('productDescription').textContent = product.description;
             document.getElementById('productPrice').textContent = product.price.toFixed(2);
+            document.getElementById('productDescription').textContent = product.description;
+            
+            updateCartTotal();
+            
+            document.getElementById('addToCartBtn').addEventListener('click', () => {
+                const quantityInput = document.getElementById('quantityInput');
+                const quantity = parseInt(quantityInput.value);
+                const errorMessage = document.getElementById('quantityError');
+                
+                
+                
+                if (quantity < 1) {
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                errorMessage.style.display = 'none';
+                
+                shoppingCart[productId] = (shoppingCart[productId] || 0) + quantity;
+                localStorage.setItem('shoppingCart', JSON.stringify(shoppingCart));
+                
+                updateCartTotal();
+                
+                alert(`${quantity} ${product.title} added to cart!`);
+            });
+            
+            document.getElementById('quantityInput').addEventListener('input', (e) => {
+                const quantity = parseInt(e.target.value);
+                const errorMessage = document.getElementById('quantityError');
+                document.getElementById('quantityPrice').textContent = "Total Price: "+ "$"+(quantity*product.price).toFixed(2);
+                
+                if (quantity < 1) {
+                    errorMessage.style.display = 'block';
+                } else {
+                    errorMessage.style.display = 'none';
+                }
+            });
 
-            productPrice = product.price;
-            updateTotal();
+            document.getElementById('goToCartBtn').addEventListener('click', () => {
+                window.location.href = 'shopping-cart.html';
+            });
+        } else {
+            document.querySelector('.product-container').innerHTML = `
+                <div style="width: 100%; text-align: center; padding: 50px;">
+                    <h2>Product not found</h2>
+                    <p>The requested product could not be found.</p>
+                    <button class="btn btn-secondary" onclick="window.location.href='products.html'">Back to Products</button>
+                </div>
+            `;
         }
-
-        function updateTotal() {
-            const quantity = parseInt(document.getElementById('quantityInput').value);
-            document.getElementById('totalPrice').textContent = (productPrice * quantity).toFixed(2);
-        }
-
-        function addToCart() {
-            const quantity = parseInt(document.getElementById('quantityInput').value);
-
-            if (quantity < 1) {
-                document.getElementById('errorAlert').style.display = 'block';
-                document.getElementById('errorMessage').textContent = "Please select a valid quantity.";
-                return;
-            }
-
-            document.getElementById('errorAlert').style.display = 'none';
-            document.getElementById('successAlert').style.display = 'block';
-
-            let shoppingCart = JSON.parse(localStorage.getItem("shoppingCart")) || [];
-            const existingProduct = shoppingCart.find(p => p.productId == productId);
-
-            if (existingProduct) {
-                existingProduct.quantity += quantity;
-            } else {
-                shoppingCart.push({ productId, quantity });
-            }
-
-            localStorage.setItem("shoppingCart", JSON.stringify(shoppingCart));
-        }
-
-        document.getElementById('quantityInput').addEventListener('input', updateTotal);
-        document.getElementById('addToCartBtn').addEventListener('click', addToCart);
-        document.getElementById('goToCartBtn').addEventListener('click', () => {
-            window.location.href = 'shopping-cart.html';
-        });
-
-        window.onload = fetchProductDetails;
     </script>
 </body>
 </html>
