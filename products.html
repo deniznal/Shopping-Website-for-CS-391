@@ -203,7 +203,7 @@
 
     document.getElementById('categoryFilter').addEventListener('change', function() {
         document.getElementById('searchBox').value = '';
-        document.getElementById('sortBy').value = 'price-low-high';
+        document.getElementById('sortBy').value = 'none';
         filteredProducts = [...allProducts];
         displayProducts(filteredProducts);
     });
