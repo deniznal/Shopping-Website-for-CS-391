@@ -130,7 +130,7 @@
             <option value="price-high-low">Price: High to Low</option>
         </select>
         <button id="getProductsBtn" type="button">Get Products</button>
-        <button id="resetBtn">Reset Filters</button>
+
     </div>
     <div id="productsContainer"></div>
 
@@ -201,8 +201,7 @@
         displayProducts(filteredProducts);
     });
 
-    document.getElementById('resetBtn').addEventListener('click', function() {
-        document.getElementById('categoryFilter').value = '';
+    document.getElementById('categoryFilter').addEventListener('change', function() {
         document.getElementById('searchBox').value = '';
         document.getElementById('sortBy').value = 'price-low-high';
         filteredProducts = [...allProducts];
