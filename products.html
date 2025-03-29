@@ -126,7 +126,6 @@
         </select>
         <input type="text" id="searchBox" placeholder="Filter products...">
         <select id="sortBy">
-            <option value="">Sort By</option>
             <option value="price-low-high">Price: Low to High</option>
             <option value="price-high-low">Price: High to Low</option>
         </select>
@@ -205,7 +204,7 @@
     document.getElementById('resetBtn').addEventListener('click', function() {
         document.getElementById('categoryFilter').value = '';
         document.getElementById('searchBox').value = '';
-        document.getElementById('sortBy').value = '';
+        document.getElementById('sortBy').value = 'price-low-high';
         filteredProducts = [...allProducts];
         displayProducts(filteredProducts);
     });
